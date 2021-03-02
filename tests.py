@@ -14,7 +14,7 @@ class Tests:
         options.add_argument("--test-type")
         options.add_argument("--disable-setuid-sandbox")
         options.add_argument("--disable-infobars")
-        self.driver = webdriver.Chrome(ChromeDriverManager("87.0.4280.20").install(), options=options)
+        self.driver = webdriver.Chrome(".\\chromedriver.exe", options=options)
         self.driver.wait = WebDriverWait(self.driver, 5)
 
     def teardown_method(self):
