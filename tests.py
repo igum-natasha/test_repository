@@ -1,13 +1,20 @@
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
 
 
 class Tests:
     driver: webdriver
 
     def setup_method(self):
-        self.driver = webdriver.Chrome(ChromeDriverManager().install())
+        options = Options()
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--test-type")
+        options.add_argument("--disable-setuid-sandbox")
+        options.add_argument("--disable-infobars")
+        self.driver = webdriver.Chrome(ChromeDriverManager("87.0.4280.20").install(), options=options)
         self.driver.wait = WebDriverWait(self.driver, 5)
 
     def teardown_method(self):
