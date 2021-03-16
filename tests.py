@@ -15,6 +15,7 @@ class Tests:
         self.driver.wait = WebDriverWait(self.driver, 5)
 
     def teardown_method(self):
+        self.driver.refresh()
         self.driver.close()
 
     def test_multiplayer(self):
@@ -36,9 +37,6 @@ class Tests:
                                                                 "r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73.r-1mhb1uw")
         buttom_num_3.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
-        for i in cells:
-            print(i.get_attribute('class'))
-        print('l')
         assert 3**2 == len(cells)-5
 
     def test_number_of_4_cells(self):
@@ -53,9 +51,6 @@ class Tests:
                                                                 "r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73.r-1mhb1uw")
         buttom_num_4.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
-        for i in cells:
-            print(i.get_attribute('class'))
-        print('l')
         assert 4**2 == len(cells)-5
 
     def test_number_of_5_cells(self):
@@ -71,9 +66,6 @@ class Tests:
                                                                 "r-1mhb1uw")
         buttom_num_4.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
-        for i in cells:
-            print(i.get_attribute('class'))
-        print('l')
         assert 5**2 == len(cells)-5
 
     def test_change_style_(self):
