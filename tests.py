@@ -84,9 +84,8 @@ class Tests:
         for e in menu:
             if e.text == "ONLINE MULTIPLAYER":
                 e.click()
-        lobby_id = self.driver.find_element_by_css_selector("input.css-1cwyjr8.r-1wk2t95.r-f8cu29.r-1f0042m."
-                                                             "r-jwli3a.r-adyw6z.r-eu3ka.r-xyro26.r-zt59i6."
-                                                             "r-q4m81j.r-l0gwng")
+        lobby_id = self.driver.find_element_by_css_selector("input.css-1cwyjr8.r-1wk2t95.r-f8cu29,r-1f0042m.r-jwli3a."
+                                                            "r-adyw6z.r-eu3ka.r-1elzhzw.r-zt59i6.r-q4m81j.r-l0gwng")
         lobby_id.click()
         lobby_id.clear()
         lobby_id.send_keys('ddd')
@@ -97,8 +96,9 @@ class Tests:
             if e.text == "JOIN":
                 e.click()
         time.sleep(10)
-        answer = self.driver.find_element_by_css_selector(".css-901oao.r-1erp77z.r-a023e6.r-vw2c0b.r-1tmtcfd.r-q4m81j")
-        assert 'This lobby does not exist...' == answer.text
+        answer = self.driver.find_elements_by_css_selector(".css-901oao")
+        titles = [elem.text for elem in answer]
+        assert 'This lobby does not exist...' in titles
 
     def test_change_style_(self):
         menu = self.driver. \
