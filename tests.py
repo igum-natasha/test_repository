@@ -78,7 +78,7 @@ class Tests:
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 5 ** 2 == len(cells) - 5
 
-    def test_enter_lobby_id(self):
+    '''def test_enter_lobby_id(self):
         menu = self.driver. \
             find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73")
         for e in menu:
@@ -98,7 +98,7 @@ class Tests:
         time.sleep(10)
         answer = self.driver.find_elements_by_css_selector(".css-901oao")
         titles = [elem.text for elem in answer]
-        assert 'This lobby does not exist...' in titles
+        assert 'This lobby does not exist...' in titles'''
 
     def test_change_style_(self):
         menu = self.driver. \
@@ -225,7 +225,6 @@ class Tests:
                 e.click()
         time.sleep(10)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
-        print(len(cells))
         assert 3**2 == len(cells) - 5
 
     def test_online_game_4(self):
@@ -274,7 +273,6 @@ class Tests:
                 e.click()
         time.sleep(10)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
-        print(len(cells))
         assert 4**2 == len(cells) - 5
 
     def test_online_game_5(self):
@@ -323,5 +321,69 @@ class Tests:
                 e.click()
         time.sleep(10)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
-        print(len(cells))
         assert 5**2 == len(cells) - 5
+
+    def test_exit_multiplayer(self):
+        menu = self.driver. \
+            find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73")
+        for e in menu:
+            if e.text == "MULTIPLAYER":
+                e.click()
+        exit_buttom = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-1loqt21."
+                                                               "r-18u37iz.r-1mi5vxm.r-fpx60m.r-1otgn73.r-eafdt9."
+                                                               "r-1i6wzkk.r-lrvibr")
+        exit_buttom.click()
+        header = self.driver.find_element_by_css_selector(".css-4rbku5.css-901oao.css-bfa6kz.r-jwli3a.r-adyw6z")
+        assert header.text == "Tic Tac Toe"
+
+    def test_exit_online_multiplayer(self):
+        menu = self.driver. \
+            find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73")
+        for e in menu:
+            if e.text == "ONLINE MULTIPLAYER":
+                e.click()
+        exit_buttom = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-1loqt21."
+                                                               "r-18u37iz.r-1mi5vxm.r-fpx60m.r-1otgn73.r-eafdt9."
+                                                               "r-1i6wzkk.r-lrvibr")
+        exit_buttom.click()
+        header = self.driver.find_element_by_css_selector(".css-4rbku5.css-901oao.css-bfa6kz.r-jwli3a.r-adyw6z")
+        assert header.text == "Tic Tac Toe"
+
+    def test_exit_settings(self):
+        menu = self.driver. \
+            find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73")
+        for e in menu:
+            if e.text == "SETTINGS":
+                e.click()
+        exit_buttom = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-1loqt21."
+                                                               "r-18u37iz.r-1mi5vxm.r-fpx60m.r-1otgn73.r-eafdt9."
+                                                               "r-1i6wzkk.r-lrvibr")
+        exit_buttom.click()
+        header = self.driver.find_element_by_css_selector(".css-4rbku5.css-901oao.css-bfa6kz.r-jwli3a.r-adyw6z")
+        assert header.text == "Tic Tac Toe"
+
+    def test_profile_first(self):
+        menu = self.driver. \
+            find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
+        for e in menu:
+            if e.text == "SETTINGS":
+                e.click()
+
+        profile = self.driver.find_element_by_xpath('//*[contains(text(), "Andor Davoti")]')
+        profile.click()
+        github = self.driver.window_handles[-1]
+        self.driver.switch_to.window(github)
+        assert self.driver.title == 'andordavoti (Andor Davoti) · GitHub'
+
+    def test_profile_second(self):
+        menu = self.driver. \
+            find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
+        for e in menu:
+            if e.text == "SETTINGS":
+                e.click()
+
+        profile = self.driver.find_element_by_xpath('//*[contains(text(), "Sanna Jammeh")]')
+        profile.click()
+        github = self.driver.window_handles[-1]
+        self.driver.switch_to.window(github)
+        assert self.driver.title == 'sannajammeh (Sanna Jammeh) · GitHub'
