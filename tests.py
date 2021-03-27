@@ -1,41 +1,73 @@
+import pytest
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.firefox.options import Options as op
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.common.keys import Keys
 import time
 
+driver: webdriver
 
-class Tests:
-    def setup_method(self):
+
+@pytest.fixture(params=['chrome', 'firefox'], scope='class')
+def init_driver(request):
+    global driver
+    if request.param == 'chrome':
         options = Options()
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
         options.add_argument("--test-type")
         options.add_argument("--disable-setuid-sandbox")
         options.add_argument("--disable-infobars")
-        self.driver = webdriver.Chrome(".\\chromedriver.exe", options=options)
-        self.driver.wait = WebDriverWait(self.driver, 5)
-        self.driver.get("http://tictactoe.no/")
-        menu = self.driver. \
-            find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
-        for e in menu:
-            if e.text == "SETTINGS":
-                e.click()
-        dark_style = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-vl818t.r-pm2fo."
-                                                              "r-gxnn5r.r-ou6ah9.r-rs99b7.r-1loqt21.r-ur6pnr."
-                                                              "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
-                                                              "r-1mhb1uw")
-        dark_style.click()
+        driver = webdriver.Chrome(".\\chromedriver.exe", options=options)
+    if request.param == 'firefox':
+        options = op()
+        binary = FirefoxBinary(r"C:\Program Files\Mozilla Firefox\firefox.exe")
+        options.binary = binary
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--test-type")
+        options.add_argument("--disable-setuid-sandbox")
+        options.add_argument("--disable-infobars")
+        cap = DesiredCapabilities().FIREFOX.copy()
+        cap['marionette'] = True
+        driver = webdriver.Firefox(capabilities=cap,
+                                   executable_path=r"D:\курсач2.0\test_repository\geckodriver.exe",
+                                   options=options)
+    request.cls.driver = driver
+    driver.wait = WebDriverWait(driver, 5)
+    driver.get("http://tictactoe.no/")
+    menu = driver. \
+        find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
+    for e in menu:
+        if e.text == "SETTINGS":
+            e.click()
+    # r-vl818t.
+    dark_style = driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi.r-pm2fo."
+                                                          "r-gxnn5r.r-ou6ah9.r-rs99b7.r-1loqt21.r-ur6pnr."
+                                                          "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
+                                                          "r-1mhb1uw")
+    dark_style.click()
+
+
+@pytest.mark.usefixtures("init_driver")
+class BaseClassTests:
+    pass
+
+
+class Tests(BaseClassTests):
+    def setup_method(self):
         self.driver.refresh()
 
     def teardown_method(self):
-        self.driver.refresh()
-        self.driver.close()
+        self.driver.switch_to.window(self.driver.window_handles[0])
 
     def test_multiplayer(self):
-        buttom_multiplayer = self.driver.find_element_by_css_selector('.css-18t94o4.css-1dbjc4n.'
+        button_multiplayer = self.driver.find_element_by_css_selector('.css-18t94o4.css-1dbjc4n.'
                                                                       'r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
-        buttom_multiplayer.click()
+        button_multiplayer.click()
         assert True
 
     def test_number_of_3_cells(self):
@@ -44,10 +76,10 @@ class Tests:
         for e in menu:
             if e.text == "MULTIPLAYER":
                 e.click()
-        buttom_num_3 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-14lw9ot.r-zmljjp."
+        button_num_3 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-14lw9ot.r-zmljjp."
                                                                 "r-t12b5v.r-rs99b7.r-1loqt21.r-ur6pnr.r-1777fci."
                                                                 "r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73.r-1mhb1uw")
-        buttom_num_3.click()
+        button_num_3.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 3 ** 2 == len(cells) - 5
 
@@ -57,10 +89,10 @@ class Tests:
         for e in menu:
             if e.text == "MULTIPLAYER":
                 e.click()
-        buttom_num_4 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi.r-gxnn5r."
+        button_num_4 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi.r-gxnn5r."
                                                                 "r-17gur6a.r-rs99b7.r-1loqt21.r-ur6pnr.r-1777fci."
                                                                 "r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73.r-1mhb1uw")
-        buttom_num_4.click()
+        button_num_4.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 4 ** 2 == len(cells) - 5
 
@@ -70,15 +102,15 @@ class Tests:
         for e in menu:
             if e.text == "MULTIPLAYER":
                 e.click()
-        buttom_num_5 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi.r-pm2fo."
+        button_num_5 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi.r-pm2fo."
                                                                 "r-gxnn5r.r-ou6ah9.r-rs99b7.r-1loqt21.r-ur6pnr."
                                                                 "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
                                                                 "r-1mhb1uw")
-        buttom_num_5.click()
+        button_num_5.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 5 ** 2 == len(cells) - 5
 
-    '''def test_enter_lobby_id(self):
+    def test_enter_lobby_id(self):
         menu = self.driver. \
             find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73")
         for e in menu:
@@ -98,7 +130,7 @@ class Tests:
         time.sleep(10)
         answer = self.driver.find_elements_by_css_selector(".css-901oao")
         titles = [elem.text for elem in answer]
-        assert 'This lobby does not exist...' in titles'''
+        assert 'This lobby does not exist...' in titles
 
     def test_change_style_(self):
         menu = self.driver. \
@@ -115,35 +147,6 @@ class Tests:
         background = self.driver.find_element_by_css_selector(".css-1dbjc4n.r-1awozwy.r-1ji381s.r-13awgt0.r-1777fci")
         assert background.value_of_css_property("background-color") == "rgba(230, 234, 235, 1)"
 
-    def test_change_style_light(self):
-        menu = self.driver. \
-            find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
-        for e in menu:
-            if e.text == "SETTINGS":
-                e.click()
-
-        light_style = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi.r-gxnn5r."
-                                                               "r-17gur6a.r-rs99b7.r-1loqt21.r-ur6pnr.r-1777fci."
-                                                               "r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73.r-1mhb1uw")
-        light_style.click()
-        background = self.driver.find_element_by_css_selector(".css-1dbjc4n.r-1awozwy.r-1ji381s.r-13awgt0.r-1777fci")
-        assert background.value_of_css_property("background-color") == "rgba(230, 234, 235, 1)"
-
-    def test_change_style_dark(self):
-        menu = self.driver. \
-            find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
-        for e in menu:
-            if e.text == "SETTINGS":
-                e.click()
-
-        dark_style = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-14lw9ot.r-pm2fo."
-                                                              "r-gxnn5r.r-ou6ah9.r-rs99b7.r-1loqt21.r-ur6pnr."
-                                                              "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
-                                                              "r-1mhb1uw")
-        dark_style.click()
-        background = self.driver.find_element_by_css_selector(".css-1dbjc4n.r-1awozwy.r-blqegh.r-13awgt0.r-1777fci")
-        assert background.value_of_css_property("background-color") == "rgba(42, 45, 52, 1)"
-
     def test_project_github(self):
         menu = self.driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
@@ -152,7 +155,6 @@ class Tests:
                 e.click()
 
         project = self.driver.find_element_by_xpath('//*[contains(text(), "Project on GitHub")]')
-        print(project.get_attribute('class'))
         project.click()
         github = self.driver.window_handles[-1]
         self.driver.switch_to.window(github)
@@ -185,11 +187,11 @@ class Tests:
         for e in menu:
             if e.text == "ONLINE MULTIPLAYER":
                 e.click()
-        buttom_num_3 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-14lw9ot."
+        button_num_3 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-14lw9ot."
                                                                 "r-zmljjp.r-t12b5v.r-rs99b7.r-1loqt21.r-ur6pnr."
                                                                 "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
                                                                 "r-1mhb1uw")
-        buttom_num_3.click()
+        button_num_3.click()
         new_game = self.driver.find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim."
                                                              "r-1otgn73")
         for e in new_game:
@@ -206,11 +208,11 @@ class Tests:
         for e in menu:
             if e.text == "ONLINE MULTIPLAYER":
                 e.click()
-        buttom_num_3 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-14lw9ot."
+        button_num_3 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-14lw9ot."
                                                                 "r-zmljjp.r-t12b5v.r-rs99b7.r-1loqt21.r-ur6pnr."
                                                                 "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
                                                                 "r-1mhb1uw")
-        buttom_num_3.click()
+        button_num_3.click()
         lobby_id = self.driver.find_element_by_css_selector("input.css-1cwyjr8.r-1wk2t95.r-f8cu29.r-1f0042m."
                                                              "r-jwli3a.r-adyw6z.r-eu3ka.r-xyro26.r-zt59i6."
                                                              "r-q4m81j.r-l0gwng")
@@ -233,11 +235,11 @@ class Tests:
         for e in menu:
             if e.text == "ONLINE MULTIPLAYER":
                 e.click()
-        buttom_num_4 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi."
+        button_num_4 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi."
                                                                 "r-gxnn5r.r-17gur6a.r-rs99b7.r-1loqt21.r-ur6pnr."
                                                                 "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
                                                                 "r-1mhb1uw")
-        buttom_num_4.click()
+        button_num_4.click()
         new_game = self.driver.find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim."
                                                              "r-1otgn73")
         for e in new_game:
@@ -254,11 +256,11 @@ class Tests:
         for e in menu:
             if e.text == "ONLINE MULTIPLAYER":
                 e.click()
-        buttom_num_4 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi."
+        button_num_4 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi."
                                                                 "r-gxnn5r.r-17gur6a.r-rs99b7.r-1loqt21.r-ur6pnr."
                                                                 "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
                                                                 "r-1mhb1uw")
-        buttom_num_4.click()
+        button_num_4.click()
         lobby_id = self.driver.find_element_by_css_selector("input.css-1cwyjr8.r-1wk2t95.r-f8cu29.r-1f0042m."
                                                              "r-jwli3a.r-adyw6z.r-eu3ka.r-xyro26.r-zt59i6."
                                                              "r-q4m81j.r-l0gwng")
@@ -281,11 +283,11 @@ class Tests:
         for e in menu:
             if e.text == "ONLINE MULTIPLAYER":
                 e.click()
-        buttom_num_5 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi.r-pm2fo."
+        button_num_5 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi.r-pm2fo."
                                                                 "r-gxnn5r.r-ou6ah9.r-rs99b7.r-1loqt21.r-ur6pnr."
                                                                 "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
                                                                 "r-1mhb1uw")
-        buttom_num_5.click()
+        button_num_5.click()
         new_game = self.driver.find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim."
                                                              "r-1otgn73")
         for e in new_game:
@@ -302,11 +304,11 @@ class Tests:
         for e in menu:
             if e.text == "ONLINE MULTIPLAYER":
                 e.click()
-        buttom_num_5 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi.r-pm2fo."
+        button_num_5 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi.r-pm2fo."
                                                                 "r-gxnn5r.r-ou6ah9.r-rs99b7.r-1loqt21.r-ur6pnr."
                                                                 "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
                                                                 "r-1mhb1uw")
-        buttom_num_5.click()
+        button_num_5.click()
         lobby_id = self.driver.find_element_by_css_selector("input.css-1cwyjr8.r-1wk2t95.r-f8cu29.r-1f0042m."
                                                              "r-jwli3a.r-adyw6z.r-eu3ka.r-xyro26.r-zt59i6."
                                                              "r-q4m81j.r-l0gwng")
@@ -329,10 +331,10 @@ class Tests:
         for e in menu:
             if e.text == "MULTIPLAYER":
                 e.click()
-        exit_buttom = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-1loqt21."
+        exit_button = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-1loqt21."
                                                                "r-18u37iz.r-1mi5vxm.r-fpx60m.r-1otgn73.r-eafdt9."
                                                                "r-1i6wzkk.r-lrvibr")
-        exit_buttom.click()
+        exit_button.click()
         header = self.driver.find_element_by_css_selector(".css-4rbku5.css-901oao.css-bfa6kz.r-jwli3a.r-adyw6z")
         assert header.text == "Tic Tac Toe"
 
@@ -342,10 +344,10 @@ class Tests:
         for e in menu:
             if e.text == "ONLINE MULTIPLAYER":
                 e.click()
-        exit_buttom = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-1loqt21."
+        exit_button = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-1loqt21."
                                                                "r-18u37iz.r-1mi5vxm.r-fpx60m.r-1otgn73.r-eafdt9."
                                                                "r-1i6wzkk.r-lrvibr")
-        exit_buttom.click()
+        exit_button.click()
         header = self.driver.find_element_by_css_selector(".css-4rbku5.css-901oao.css-bfa6kz.r-jwli3a.r-adyw6z")
         assert header.text == "Tic Tac Toe"
 
@@ -355,10 +357,10 @@ class Tests:
         for e in menu:
             if e.text == "SETTINGS":
                 e.click()
-        exit_buttom = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-1loqt21."
+        exit_button = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-1loqt21."
                                                                "r-18u37iz.r-1mi5vxm.r-fpx60m.r-1otgn73.r-eafdt9."
                                                                "r-1i6wzkk.r-lrvibr")
-        exit_buttom.click()
+        exit_button.click()
         header = self.driver.find_element_by_css_selector(".css-4rbku5.css-901oao.css-bfa6kz.r-jwli3a.r-adyw6z")
         assert header.text == "Tic Tac Toe"
 
@@ -387,3 +389,34 @@ class Tests:
         github = self.driver.window_handles[-1]
         self.driver.switch_to.window(github)
         assert self.driver.title == 'sannajammeh (Sanna Jammeh) · GitHub'
+
+    def test_change_style_light(self):
+        menu = self.driver. \
+            find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
+        for e in menu:
+            if e.text == "SETTINGS":
+                e.click()
+
+        light_style = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi.r-gxnn5r."
+                                                               "r-17gur6a.r-rs99b7.r-1loqt21.r-ur6pnr.r-1777fci."
+                                                               "r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73.r-1mhb1uw")
+        light_style.click()
+        background = self.driver.find_element_by_css_selector(".css-1dbjc4n.r-1awozwy.r-1ji381s.r-13awgt0.r-1777fci")
+        assert background.value_of_css_property("background-color") == "rgba(230, 234, 235, 1)"
+
+    def test_change_style_dark(self):
+        menu = self.driver. \
+            find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
+        for e in menu:
+            if e.text == "SETTINGS":
+                e.click()
+
+        dark_style = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-vl818t.r-pm2fo."
+                                                              "r-gxnn5r.r-ou6ah9.r-rs99b7.r-1loqt21.r-ur6pnr."
+                                                              "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
+                                                              "r-1mhb1uw")
+        dark_style.click()
+        background = self.driver.find_element_by_css_selector(".css-1dbjc4n.r-1awozwy.r-blqegh.r-13awgt0.r-1777fci")
+        assert background.value_of_css_property("background-color") == "rgba(42, 45, 52, 1)"
+
+
