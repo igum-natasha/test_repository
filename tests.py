@@ -6,14 +6,14 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.firefox.options import Options as op
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.color import Color
 import time
 
 driver: webdriver
 
-
+ 
 @pytest.fixture(params=['chrome', 'firefox'], scope='class')
 def init_driver(request):
-    global driver
     if request.param == 'chrome':
         options = Options()
         options.add_argument("--disable-gpu")
@@ -34,8 +34,9 @@ def init_driver(request):
         cap = DesiredCapabilities().FIREFOX.copy()
         cap['marionette'] = True
         driver = webdriver.Firefox(capabilities=cap,
-                                   executable_path=r"D:\курсач2.0\test_repository\geckodriver.exe",
+                                   executable_path=r"geckodriver.exe",
                                    options=options)
+        driver.implicitly_wait(20)
     request.cls.driver = driver
     driver.wait = WebDriverWait(driver, 5)
     driver.get("http://tictactoe.no/")
@@ -144,9 +145,10 @@ class Tests(BaseClassTests):
                                                                ".r-1udh08x.r-bnwqim.r-1otgn73.r-1mhb1uw")
         first_style.click()
 
-        background = self.driver.find_element_by_css_selector(".css-1dbjc4n.r-1awozwy.r-1ji381s.r-13awgt0.r-1777fci")
-        assert background.value_of_css_property("background-color") == "rgba(230, 234, 235, 1)"
-
+        background = self.driver.find_element_by_css_selector(".css-1dbjc4n.r-1awozwy.r-blqegh.r-13awgt0.r-1777fci")
+        hex_color = Color.from_string(background.value_of_css_property("background-color")).hex
+        assert hex_color == "#2a2d34"
+        
     def test_project_github(self):
         menu = self.driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
@@ -156,10 +158,12 @@ class Tests(BaseClassTests):
 
         project = self.driver.find_element_by_xpath('//*[contains(text(), "Project on GitHub")]')
         project.click()
+        time.sleep(10)
         github = self.driver.window_handles[-1]
         self.driver.switch_to.window(github)
         assert self.driver.title == 'GitHub - andordavoti/tic-tac-toe-app: Online multiplayer ' \
                                     'Tic Tac Toe game for iOS, android and web.'
+        self.driver.close()
 
     def test_quit_game(self):
         menu = self.driver. \
@@ -199,8 +203,10 @@ class Tests(BaseClassTests):
                 e.click()
         time.sleep(10)
         lobby = self.driver.\
-            find_element_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-vw2c0b.r-9h1qh2.r-q4m81j").text
+            find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-vw2c0b")
+        lobby = lobby[0].text
         self.driver.execute_script('window.open("https://tictactoe.no/")')
+        time.sleep(10)
         new_tab = self.driver.window_handles[-1]
         self.driver.switch_to.window(new_tab)
         menu = self.driver. \
@@ -213,9 +219,7 @@ class Tests(BaseClassTests):
                                                                 "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
                                                                 "r-1mhb1uw")
         button_num_3.click()
-        lobby_id = self.driver.find_element_by_css_selector("input.css-1cwyjr8.r-1wk2t95.r-f8cu29.r-1f0042m."
-                                                             "r-jwli3a.r-adyw6z.r-eu3ka.r-xyro26.r-zt59i6."
-                                                             "r-q4m81j.r-l0gwng")
+        lobby_id = self.driver.find_element_by_css_selector("input")
         lobby_id.click()
         lobby_id.clear()
         lobby_id.send_keys(lobby[1:])
@@ -228,6 +232,7 @@ class Tests(BaseClassTests):
         time.sleep(10)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 3**2 == len(cells) - 5
+        self.driver.close()
 
     def test_online_game_4(self):
         menu = self.driver. \
@@ -247,8 +252,10 @@ class Tests(BaseClassTests):
                 e.click()
         time.sleep(10)
         lobby = self.driver.\
-            find_element_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-vw2c0b.r-9h1qh2.r-q4m81j").text
+            find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-vw2c0b")
+        lobby = lobby[0].text
         self.driver.execute_script('window.open("https://tictactoe.no/")')
+        time.sleep(10)
         new_tab = self.driver.window_handles[-1]
         self.driver.switch_to.window(new_tab)
         menu = self.driver. \
@@ -261,9 +268,7 @@ class Tests(BaseClassTests):
                                                                 "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
                                                                 "r-1mhb1uw")
         button_num_4.click()
-        lobby_id = self.driver.find_element_by_css_selector("input.css-1cwyjr8.r-1wk2t95.r-f8cu29.r-1f0042m."
-                                                             "r-jwli3a.r-adyw6z.r-eu3ka.r-xyro26.r-zt59i6."
-                                                             "r-q4m81j.r-l0gwng")
+        lobby_id = self.driver.find_element_by_css_selector("input")
         lobby_id.click()
         lobby_id.clear()
         lobby_id.send_keys(lobby[1:])
@@ -276,6 +281,7 @@ class Tests(BaseClassTests):
         time.sleep(10)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 4**2 == len(cells) - 5
+        self.driver.close()
 
     def test_online_game_5(self):
         menu = self.driver. \
@@ -295,8 +301,10 @@ class Tests(BaseClassTests):
                 e.click()
         time.sleep(10)
         lobby = self.driver.\
-            find_element_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-vw2c0b.r-9h1qh2.r-q4m81j").text
+            find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-vw2c0b")
+        lobby = lobby[0].text
         self.driver.execute_script('window.open("https://tictactoe.no/")')
+        time.sleep(10)
         new_tab = self.driver.window_handles[-1]
         self.driver.switch_to.window(new_tab)
         menu = self.driver. \
@@ -309,9 +317,7 @@ class Tests(BaseClassTests):
                                                                 "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
                                                                 "r-1mhb1uw")
         button_num_5.click()
-        lobby_id = self.driver.find_element_by_css_selector("input.css-1cwyjr8.r-1wk2t95.r-f8cu29.r-1f0042m."
-                                                             "r-jwli3a.r-adyw6z.r-eu3ka.r-xyro26.r-zt59i6."
-                                                             "r-q4m81j.r-l0gwng")
+        lobby_id = self.driver.find_element_by_css_selector("input")
         lobby_id.click()
         lobby_id.clear()
         lobby_id.send_keys(lobby[1:])
@@ -324,6 +330,7 @@ class Tests(BaseClassTests):
         time.sleep(10)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 5**2 == len(cells) - 5
+        self.driver.close()
 
     def test_exit_multiplayer(self):
         menu = self.driver. \
@@ -373,9 +380,11 @@ class Tests(BaseClassTests):
 
         profile = self.driver.find_element_by_xpath('//*[contains(text(), "Andor Davoti")]')
         profile.click()
+        time.sleep(10)
         github = self.driver.window_handles[-1]
         self.driver.switch_to.window(github)
         assert self.driver.title == 'andordavoti (Andor Davoti) · GitHub'
+        self.driver.close()
 
     def test_profile_second(self):
         menu = self.driver. \
@@ -386,9 +395,11 @@ class Tests(BaseClassTests):
 
         profile = self.driver.find_element_by_xpath('//*[contains(text(), "Sanna Jammeh")]')
         profile.click()
+        time.sleep(10)
         github = self.driver.window_handles[-1]
         self.driver.switch_to.window(github)
         assert self.driver.title == 'sannajammeh (Sanna Jammeh) · GitHub'
+        self.driver.close()
 
     def test_change_style_light(self):
         menu = self.driver. \
@@ -402,8 +413,9 @@ class Tests(BaseClassTests):
                                                                "r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73.r-1mhb1uw")
         light_style.click()
         background = self.driver.find_element_by_css_selector(".css-1dbjc4n.r-1awozwy.r-1ji381s.r-13awgt0.r-1777fci")
-        assert background.value_of_css_property("background-color") == "rgba(230, 234, 235, 1)"
-
+        hex_color = Color.from_string(background.value_of_css_property("background-color")).hex
+        assert hex_color == "#e6eaeb"
+        
     def test_change_style_dark(self):
         menu = self.driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
@@ -417,6 +429,6 @@ class Tests(BaseClassTests):
                                                               "r-1mhb1uw")
         dark_style.click()
         background = self.driver.find_element_by_css_selector(".css-1dbjc4n.r-1awozwy.r-blqegh.r-13awgt0.r-1777fci")
-        assert background.value_of_css_property("background-color") == "rgba(42, 45, 52, 1)"
-
+        hex_color = Color.from_string(background.value_of_css_property("background-color")).hex
+        assert hex_color == "#2a2d34"
 
