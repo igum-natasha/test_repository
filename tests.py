@@ -28,11 +28,11 @@ def init_driver(request):
         options.binary = binary
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
-        options.add_argument("--test-type")
+        options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-setuid-sandbox")
-        options.add_argument("--disable-infobars")
         cap = DesiredCapabilities().FIREFOX.copy()
         cap['marionette'] = True
+        time.sleep(20)
         driver = webdriver.Firefox(capabilities=cap,
                                    executable_path=r"geckodriver.exe",
                                    options=options)
