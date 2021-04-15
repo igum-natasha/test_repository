@@ -12,7 +12,7 @@ import time
 driver: webdriver
 
  
-@pytest.fixture(params=['chrome', 'firefox'], scope='class')
+@pytest.fixture(params=['firefox', 'chrome'], scope='class')
 def init_driver(request):
     if request.param == 'chrome':
         options = Options()
@@ -32,7 +32,7 @@ def init_driver(request):
         options.add_argument("--disable-setuid-sandbox")
         cap = DesiredCapabilities().FIREFOX.copy()
         cap['marionette'] = True
-        time.sleep(20)
+        time.sleep(30)
         driver = webdriver.Firefox(capabilities=cap,
                                    executable_path=r"geckodriver.exe",
                                    options=options)
@@ -65,12 +65,15 @@ class Tests(BaseClassTests):
     def teardown_method(self):
         self.driver.switch_to.window(self.driver.window_handles[0])
 
+    @pytest.mark.new_feature
+    @pytest.mark.button
     def test_multiplayer(self):
         button_multiplayer = self.driver.find_element_by_css_selector('.css-18t94o4.css-1dbjc4n.'
                                                                       'r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
         button_multiplayer.click()
         assert True
 
+    @pytest.mark.number_cells
     def test_number_of_3_cells(self):
         menu = self.driver. \
             find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73")
@@ -84,6 +87,7 @@ class Tests(BaseClassTests):
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 3 ** 2 == len(cells) - 5
 
+    @pytest.mark.number_cells
     def test_number_of_4_cells(self):
         menu = self.driver. \
             find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73")
@@ -97,6 +101,7 @@ class Tests(BaseClassTests):
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 4 ** 2 == len(cells) - 5
 
+    @pytest.mark.number_cells
     def test_number_of_5_cells(self):
         menu = self.driver. \
             find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73")
@@ -110,7 +115,9 @@ class Tests(BaseClassTests):
         button_num_5.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 5 ** 2 == len(cells) - 5
-
+    
+    @pytest.mark.new_feature
+    @pytest.mark.enter
     def test_enter_lobby_id(self):
         menu = self.driver. \
             find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73")
@@ -132,7 +139,8 @@ class Tests(BaseClassTests):
         answer = self.driver.find_elements_by_css_selector(".css-901oao")
         titles = [elem.text for elem in answer]
         assert 'This lobby does not exist...' in titles
-
+    
+    @pytest.mark.style
     def test_change_style_(self):
         menu = self.driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
@@ -148,7 +156,8 @@ class Tests(BaseClassTests):
         background = self.driver.find_element_by_css_selector(".css-1dbjc4n.r-1awozwy.r-blqegh.r-13awgt0.r-1777fci")
         hex_color = Color.from_string(background.value_of_css_property("background-color")).hex
         assert hex_color == "#2a2d34"
-        
+
+    @pytest.mark.new_tab
     def test_project_github(self):
         menu = self.driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
@@ -164,7 +173,9 @@ class Tests(BaseClassTests):
         assert self.driver.title == 'GitHub - andordavoti/tic-tac-toe-app: Online multiplayer ' \
                                     'Tic Tac Toe game for iOS, android and web.'
         self.driver.close()
-
+    
+    @pytest.mark.new_feature
+    @pytest.mark.exit_
     def test_quit_game(self):
         menu = self.driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
@@ -185,6 +196,7 @@ class Tests(BaseClassTests):
                 e.click()
         assert self.driver.title == 'Tic Tac Toe'
 
+    @pytest.mark.new_tab
     def test_online_game_3(self):
         menu = self.driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
@@ -234,6 +246,7 @@ class Tests(BaseClassTests):
         assert 3**2 == len(cells) - 5
         self.driver.close()
 
+    @pytest.mark.new_tab
     def test_online_game_4(self):
         menu = self.driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
@@ -283,6 +296,7 @@ class Tests(BaseClassTests):
         assert 4**2 == len(cells) - 5
         self.driver.close()
 
+    @pytest.mark.new_tab
     def test_online_game_5(self):
         menu = self.driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
@@ -331,7 +345,9 @@ class Tests(BaseClassTests):
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 5**2 == len(cells) - 5
         self.driver.close()
-
+    
+    @pytest.mark.new_feature
+    @pytest.mark.exit_
     def test_exit_multiplayer(self):
         menu = self.driver. \
             find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73")
@@ -344,7 +360,9 @@ class Tests(BaseClassTests):
         exit_button.click()
         header = self.driver.find_element_by_css_selector(".css-4rbku5.css-901oao.css-bfa6kz.r-jwli3a.r-adyw6z")
         assert header.text == "Tic Tac Toe"
-
+    
+    @pytest.mark.new_feature
+    @pytest.mark.exit_
     def test_exit_online_multiplayer(self):
         menu = self.driver. \
             find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73")
@@ -357,7 +375,9 @@ class Tests(BaseClassTests):
         exit_button.click()
         header = self.driver.find_element_by_css_selector(".css-4rbku5.css-901oao.css-bfa6kz.r-jwli3a.r-adyw6z")
         assert header.text == "Tic Tac Toe"
-
+    
+    @pytest.mark.new_feature
+    @pytest.mark.exit_
     def test_exit_settings(self):
         menu = self.driver. \
             find_elements_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73")
@@ -371,6 +391,7 @@ class Tests(BaseClassTests):
         header = self.driver.find_element_by_css_selector(".css-4rbku5.css-901oao.css-bfa6kz.r-jwli3a.r-adyw6z")
         assert header.text == "Tic Tac Toe"
 
+    @pytest.mark.new_tab
     def test_profile_first(self):
         menu = self.driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
@@ -386,6 +407,7 @@ class Tests(BaseClassTests):
         assert self.driver.title == 'andordavoti (Andor Davoti) · GitHub'
         self.driver.close()
 
+    @pytest.mark.new_tab
     def test_profile_second(self):
         menu = self.driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
@@ -401,6 +423,7 @@ class Tests(BaseClassTests):
         assert self.driver.title == 'sannajammeh (Sanna Jammeh) · GitHub'
         self.driver.close()
 
+    @pytest.mark.style
     def test_change_style_light(self):
         menu = self.driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
@@ -415,7 +438,8 @@ class Tests(BaseClassTests):
         background = self.driver.find_element_by_css_selector(".css-1dbjc4n.r-1awozwy.r-1ji381s.r-13awgt0.r-1777fci")
         hex_color = Color.from_string(background.value_of_css_property("background-color")).hex
         assert hex_color == "#e6eaeb"
-        
+    
+    @pytest.mark.style    
     def test_change_style_dark(self):
         menu = self.driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
