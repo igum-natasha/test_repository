@@ -85,7 +85,7 @@ class Tests(BaseClassTests):
         self.driver.switch_to.window(self.driver.window_handles[0])
 
     @pytest.mark.new_feature
-    @pytest.mark.button
+    @pytest.mark.buttons_menu
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_buttons_main_page(self):
         buttons = self.driver.find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.'
@@ -94,7 +94,7 @@ class Tests(BaseClassTests):
         
         assert titles == ["MULTIPLAYER", "ONLINE MULTIPLAYER", "SETTINGS"]
 
-    @pytest.mark.number_cells
+    @pytest.mark.setting_game
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_number_of_3_cells(self):
         menu = self.driver. \
@@ -109,7 +109,7 @@ class Tests(BaseClassTests):
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 3 ** 2 == len(cells) - 5
 
-    @pytest.mark.number_cells
+    @pytest.mark.setting_game
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_number_of_4_cells(self):
         menu = self.driver. \
@@ -124,7 +124,7 @@ class Tests(BaseClassTests):
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 4 ** 2 == len(cells) - 5
 
-    @pytest.mark.number_cells
+    @pytest.mark.setting_game
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_number_of_5_cells(self):
         menu = self.driver. \
@@ -141,7 +141,7 @@ class Tests(BaseClassTests):
         assert 5 ** 2 == len(cells) - 5
     
     @pytest.mark.new_feature
-    @pytest.mark.enter
+    @pytest.mark.enter_lobby
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_enter_lobby_id(self):
         menu = self.driver. \
@@ -165,7 +165,7 @@ class Tests(BaseClassTests):
         titles = [elem.text for elem in answer]
         assert 'This lobby does not exist...' in titles
     
-    @pytest.mark.style
+    @pytest.mark.change_style
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_change_style_(self):
         menu = self.driver. \
@@ -183,7 +183,7 @@ class Tests(BaseClassTests):
         hex_color = Color.from_string(background.value_of_css_property("background-color")).hex
         assert hex_color == "#2a2d34"
 
-    @pytest.mark.new_tab
+    @pytest.mark.github_project
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_project_github(self):
         menu = self.driver. \
@@ -202,7 +202,7 @@ class Tests(BaseClassTests):
         self.driver.close()
     
     @pytest.mark.new_feature
-    @pytest.mark.exit_
+    @pytest.mark.exit_online_game
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_quit_game(self):
         menu = self.driver. \
@@ -224,7 +224,7 @@ class Tests(BaseClassTests):
                 e.click()
         assert self.driver.title == 'Tic Tac Toe'
 
-    @pytest.mark.new_tab
+    @pytest.mark.setting_online_game
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_online_game_3(self):
         menu = self.driver. \
@@ -277,7 +277,7 @@ class Tests(BaseClassTests):
         assert 3**2 == len(cells) - 5
         self.driver.close()
 
-    @pytest.mark.new_tab
+    @pytest.mark.setting_online_game
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_online_game_4(self):
         menu = self.driver. \
@@ -328,7 +328,7 @@ class Tests(BaseClassTests):
         assert 4**2 == len(cells) - 5
         self.driver.close()
 
-    @pytest.mark.new_tab
+    @pytest.mark.setting_online_game
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_online_game_5(self):
         menu = self.driver. \
@@ -380,7 +380,7 @@ class Tests(BaseClassTests):
         self.driver.close()
     
     @pytest.mark.new_feature
-    @pytest.mark.exit_
+    @pytest.mark.exit_game
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_exit_multiplayer(self):
         menu = self.driver. \
@@ -396,7 +396,7 @@ class Tests(BaseClassTests):
         assert header.text == "Tic Tac Toe"
     
     @pytest.mark.new_feature
-    @pytest.mark.exit_
+    @pytest.mark.exit_online_game
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_exit_online_multiplayer(self):
         menu = self.driver. \
@@ -412,7 +412,7 @@ class Tests(BaseClassTests):
         assert header.text == "Tic Tac Toe"
     
     @pytest.mark.new_feature
-    @pytest.mark.exit_
+    @pytest.mark.exit_settings
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_exit_settings(self):
         menu = self.driver. \
@@ -427,7 +427,7 @@ class Tests(BaseClassTests):
         header = self.driver.find_element_by_css_selector(".css-4rbku5.css-901oao.css-bfa6kz.r-jwli3a.r-adyw6z")
         assert header.text == "Tic Tac Toe"
 
-    @pytest.mark.new_tab
+    @pytest.mark.open_profile
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_profile_first(self):
         menu = self.driver. \
@@ -444,7 +444,7 @@ class Tests(BaseClassTests):
         assert self.driver.title == 'andordavoti (Andor Davoti) · GitHub'
         self.driver.close()
 
-    @pytest.mark.new_tab
+    @pytest.mark.open_profile
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_profile_second(self):
         menu = self.driver. \
@@ -461,7 +461,7 @@ class Tests(BaseClassTests):
         assert self.driver.title == 'sannajammeh (Sanna Jammeh) · GitHub'
         self.driver.close()
 
-    @pytest.mark.style
+    @pytest.mark.change_style
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_change_style_light(self):
         menu = self.driver. \
@@ -478,7 +478,7 @@ class Tests(BaseClassTests):
         hex_color = Color.from_string(background.value_of_css_property("background-color")).hex
         assert hex_color == "#e6eaeb"
     
-    @pytest.mark.style 
+    @pytest.mark.change_style
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")    
     def test_change_style_dark(self):
         menu = self.driver. \
@@ -526,7 +526,7 @@ class Tests(BaseClassTests):
         cell[0].click()
         tie = WebDriverWait(self.driver, 120).until(
         lambda x: x.find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-16dba41.r-1ac772u.r-q4m81j"))
-        #tie = self.driver.find_elements_by_css_selector(".css-901oao")
+        
         titles = [elem.text for elem in tie]
         assert "It's a Tie" in titles
     
@@ -555,7 +555,7 @@ class Tests(BaseClassTests):
         self.driver.implicitly_wait(20)
         win = WebDriverWait(self.driver, 120).until(
         lambda x: x.find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-16dba41"))
-        #tie = self.driver.find_elements_by_css_selector(".css-901oao")
+        
         titles = [elem.text for elem in win]
         assert "The winner is X" in titles
     
