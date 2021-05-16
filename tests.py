@@ -1,4 +1,3 @@
-import pytest
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
@@ -9,9 +8,11 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.color import Color
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
 import time 
 driver: webdriver
-  
+
+ 
 @pytest.fixture(params=['firefox', 'chrome'], scope='class')
 def init_driver(request):
     if request.param == 'chrome':
@@ -36,12 +37,16 @@ def init_driver(request):
         cap = DesiredCapabilities().FIREFOX.copy()
         cap['marionette'] = True
         try:
-            driver = webdriver.Firefox(capabilities=cap,
-                                   executable_path=r"geckodriver.exe",
-                                   options=options)
+            # driver = webdriver.Firefox(capabilities=cap,
+            #                       executable_path=r"geckodriver.exe",
+            #                       options=options)
+            driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+            driver.set_window_size(1050, 708)
         except TimeoutException:
             pytest.skip("Time out")
         driver.implicitly_wait(20)
+    size = driver.get_window_size()
+    print(request.param, size)
     request.cls.driver = driver
     driver.wait = WebDriverWait(driver, 5)
     driver.get("http://tictactoe.no/")
@@ -106,6 +111,7 @@ class Tests(BaseClassTests):
                                                                 "r-t12b5v.r-rs99b7.r-1loqt21.r-ur6pnr.r-1777fci."
                                                                 "r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73.r-1mhb1uw")
         button_num_3.click()
+        time.sleep(10)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 3 ** 2 == len(cells) - 5
 
@@ -121,6 +127,7 @@ class Tests(BaseClassTests):
                                                                 "r-17gur6a.r-rs99b7.r-1loqt21.r-ur6pnr.r-1777fci."
                                                                 "r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73.r-1mhb1uw")
         button_num_4.click()
+        time.sleep(10)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 4 ** 2 == len(cells) - 5
 
@@ -137,10 +144,10 @@ class Tests(BaseClassTests):
                                                                 "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
                                                                 "r-1mhb1uw")
         button_num_5.click()
+        time.sleep(10)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         assert 5 ** 2 == len(cells) - 5
     
-    @pytest.mark.new_feature
     @pytest.mark.enter_lobby
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_enter_lobby_id(self):
@@ -160,11 +167,13 @@ class Tests(BaseClassTests):
         for e in join:
             if e.text == "JOIN":
                 e.click()
+        time.sleep(10)
         answer = WebDriverWait(self.driver, 120).until(
-        lambda x: x.find_elements_by_css_selector(".css-901oao.r-1erp77z"))
+           lambda x: x.find_elements_by_css_selector(".css-901oao"))
         titles = [elem.text for elem in answer]
         assert 'This lobby does not exist...' in titles
     
+    @pytest.mark.new_feature
     @pytest.mark.change_style
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_change_style_(self):
@@ -195,6 +204,7 @@ class Tests(BaseClassTests):
         project = self.driver.find_element_by_xpath('//*[contains(text(), "Project on GitHub")]')
         project.click()
         self.driver.implicitly_wait(10)
+        time.sleep(10)
         github = self.driver.window_handles[-1]
         self.driver.switch_to.window(github)
         assert self.driver.title == 'GitHub - andordavoti/tic-tac-toe-app: Online multiplayer ' \
@@ -216,7 +226,7 @@ class Tests(BaseClassTests):
         for e in new_game:
             if e.text == "NEW GAME":
                 e.click()
-        self.driver.implicitly_wait(10)
+        time.sleep(10)
         quit_game = self.driver.find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.'
                                                               'r-1otgn73')
         for e in quit_game:
@@ -392,6 +402,7 @@ class Tests(BaseClassTests):
                                                                "r-18u37iz.r-1mi5vxm.r-fpx60m.r-1otgn73.r-eafdt9."
                                                                "r-1i6wzkk.r-lrvibr")
         exit_button.click()
+        time.sleep(10)
         header = self.driver.find_element_by_css_selector(".css-4rbku5.css-901oao.css-bfa6kz.r-jwli3a.r-adyw6z")
         assert header.text == "Tic Tac Toe"
     
@@ -408,6 +419,7 @@ class Tests(BaseClassTests):
                                                                "r-18u37iz.r-1mi5vxm.r-fpx60m.r-1otgn73.r-eafdt9."
                                                                "r-1i6wzkk.r-lrvibr")
         exit_button.click()
+        time.sleep(10)
         header = self.driver.find_element_by_css_selector(".css-4rbku5.css-901oao.css-bfa6kz.r-jwli3a.r-adyw6z")
         assert header.text == "Tic Tac Toe"
     
@@ -424,6 +436,7 @@ class Tests(BaseClassTests):
                                                                "r-18u37iz.r-1mi5vxm.r-fpx60m.r-1otgn73.r-eafdt9."
                                                                "r-1i6wzkk.r-lrvibr")
         exit_button.click()
+        time.sleep(10)
         header = self.driver.find_element_by_css_selector(".css-4rbku5.css-901oao.css-bfa6kz.r-jwli3a.r-adyw6z")
         assert header.text == "Tic Tac Toe"
 
@@ -439,6 +452,7 @@ class Tests(BaseClassTests):
         profile = self.driver.find_element_by_xpath('//*[contains(text(), "Andor Davoti")]')
         profile.click()
         self.driver.implicitly_wait(10)
+        time.sleep(10)
         github = self.driver.window_handles[-1]
         self.driver.switch_to.window(github)
         assert self.driver.title == 'andordavoti (Andor Davoti) · GitHub'
@@ -456,6 +470,7 @@ class Tests(BaseClassTests):
         profile = self.driver.find_element_by_xpath('//*[contains(text(), "Sanna Jammeh")]')
         profile.click()
         self.driver.implicitly_wait(10)
+        time.sleep(10)
         github = self.driver.window_handles[-1]
         self.driver.switch_to.window(github)
         assert self.driver.title == 'sannajammeh (Sanna Jammeh) · GitHub'
@@ -505,27 +520,39 @@ class Tests(BaseClassTests):
             if e.text == "MULTIPLAYER":
                 e.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
-        cell = [elem for elem in cells if elem.location['y'] == 255 and elem.location['x'] == 387]
+        time.sleep(10)
+        x, y = [], []
+        cell = [elem for elem in cells if elem.location['y'] // 100 == 2 and elem.location['x'] // 100 == 3]
         cell[0].click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
-        cell = [elem for elem in cells if elem.location['y'] == 291 and elem.location['x'] == 488]
+        for cell in cells:
+            cy = cell.location['y']
+            if cy // 100 and cy not in y:
+                y.append(cy)
+            cx = cell.location['x']
+            if cx // 100 and cx not in x:
+                x.append(cx)
+        print(x, y)
+        x.pop(0)
+        cell = [elem for elem in cells if elem.location['y'] == y[1] and elem.location['x'] == x[1]]
         cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == 190 and elem.location['x'] == 590]
+        cell = [elem for elem in cells if elem.location['y'] == y[0] and elem.location['x'] == x[2]]
         cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == 190 and elem.location['x'] == 488]
+        cell = [elem for elem in cells if elem.location['y'] == y[0] and elem.location['x'] == x[1]]
         cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == 291 and elem.location['x'] == 387]
+        cell = [elem for elem in cells if elem.location['y'] == y[1] and elem.location['x'] == x[0]]
         cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == 393 and elem.location['x'] == 387]
+        cell = [elem for elem in cells if elem.location['y'] == y[2] and elem.location['x'] == x[0]]
         cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == 393 and elem.location['x'] == 488]
+        cell = [elem for elem in cells if elem.location['y'] == y[2] and elem.location['x'] == x[1]]
         cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == 291 and elem.location['x'] == 590]
+        cell = [elem for elem in cells if elem.location['y'] == y[1] and elem.location['x'] == x[2]]
         cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == 393 and elem.location['x'] == 590]
+        cell = [elem for elem in cells if elem.location['y'] == y[2] and elem.location['x'] == x[2]]
         cell[0].click()
+        time.sleep(10)
         tie = WebDriverWait(self.driver, 120).until(
-        lambda x: x.find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-16dba41.r-1ac772u.r-q4m81j"))
+            lambda x: x.find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-16dba41"))
         
         titles = [elem.text for elem in tie]
         assert "It's a Tie" in titles
@@ -539,22 +566,33 @@ class Tests(BaseClassTests):
             if e.text == "MULTIPLAYER":
                 e.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
-        cell = [elem for elem in cells if elem.location['y'] == 255 and elem.location['x'] == 488]
+        time.sleep(10)
+        cell = [elem for elem in cells if elem.location['y'] // 100 == 2 and elem.location['x'] // 100 == 4]
         cell[0].click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
-        cell = [elem for elem in cells if elem.location['y'] == 190 and elem.location['x'] == 387]
+        x, y = [], []
+        for cell in cells:
+            cy = cell.location['y']
+            if cy // 100 and cy not in y:
+                y.append(cy)
+            cx = cell.location['x']
+            if cx // 100 and cx not in x:
+                x.append(cx)
+        print(x, y)
+        x.pop(0)
+        cell = [elem for elem in cells if elem.location['y'] == y[0] and elem.location['x'] == x[0]]
         cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == 190 and elem.location['x'] == 590]
+        cell = [elem for elem in cells if elem.location['y'] == y[0] and elem.location['x'] == x[2]]
         cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == 291 and elem.location['x'] == 488]
+        cell = [elem for elem in cells if elem.location['y'] == y[1] and elem.location['x'] == x[1]]
         cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == 291 and elem.location['x'] == 387]
+        cell = [elem for elem in cells if elem.location['y'] == y[1] and elem.location['x'] == x[0]]
         cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == 393 and elem.location['x'] == 590]
+        cell = [elem for elem in cells if elem.location['y'] == y[2] and elem.location['x'] == x[2]]
         cell[0].click()
-        self.driver.implicitly_wait(20)
+        time.sleep(10)
         win = WebDriverWait(self.driver, 120).until(
-        lambda x: x.find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-16dba41"))
+            lambda x: x.find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-16dba41"))
         
         titles = [elem.text for elem in win]
         assert "The winner is X" in titles
@@ -568,19 +606,30 @@ class Tests(BaseClassTests):
             if e.text == "MULTIPLAYER":
                 e.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
-        cell = [elem for elem in cells if elem.location['y'] == 255 and elem.location['x'] == 387]
+        time.sleep(10)
+        cell = [elem for elem in cells if elem.location['y'] // 100 == 2 and elem.location['x'] // 100 == 3]
         cell[0].click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
-        cell = [elem for elem in cells if elem.location['y'] == 190 and elem.location['x'] == 488]
+        x, y = [], []
+        for cell in cells:
+            cy = cell.location['y']
+            if cy // 100 and cy not in y:
+                y.append(cy)
+            cx = cell.location['x']
+            if cx // 100 and cx not in x:
+                x.append(cx)
+        print(x, y)
+        x.pop(0)
+        cell = [elem for elem in cells if elem.location['y'] == y[0] and elem.location['x'] == x[1]]
         cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == 291 and elem.location['x'] == 488]
+        cell = [elem for elem in cells if elem.location['y'] == y[1] and elem.location['x'] == x[1]]
         cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == 190 and elem.location['x'] == 590]
+        cell = [elem for elem in cells if elem.location['y'] == y[0] and elem.location['x'] == x[2]]
         cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == 393 and elem.location['x'] == 590]
+        cell = [elem for elem in cells if elem.location['y'] == y[2] and elem.location['x'] == x[2]]
         cell[0].click()
-        self.driver.implicitly_wait(30)
+        time.sleep(10)
         win = WebDriverWait(self.driver, 120).until(
-        lambda x: x.find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-16dba41"))
+            lambda x: x.find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-16dba41"))
         titles = [elem.text for elem in win]
         assert "The winner is O" in titles
