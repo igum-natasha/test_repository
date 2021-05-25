@@ -23,33 +23,42 @@ def init_driver(request):
         options.add_argument("--test-type")
         options.add_argument("--disable-setuid-sandbox")
         options.add_argument("--disable-infobars")
+        options.add_argument("--headless")
+        options.add_argument("--disable-dev-shm-usage")
+        cap = DesiredCapabilities().CHROME.copy()
+        cap['pageLoadStrategy'] = "none"
         try:
-            driver = webdriver.Chrome(ChromeDriverManager().install())
+            time.sleep(20)
+            driver = webdriver.Chrome(executable_path=r"C:\drivers\chromedriver\win32\90.0.4430.24\chromedriver.exe",
+                                      options=options)
         except TimeoutException:
             pytest.skip("Time out")
     if request.param == 'firefox':
         options = op()
         binary = FirefoxBinary(r"C:\Program Files\Mozilla Firefox\firefox.exe")
-        options.binary = binary
+        '''options.binary = binary
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-setuid-sandbox")
         cap = DesiredCapabilities().FIREFOX.copy()
-        cap['marionette'] = True
+        cap['marionette'] = True'''
+        options.add_argument("--headless")
+        options.binary_location = binary
+        options.add_argument("--disable-dev-shm-usage") # overcome limited resource problems
+        options.add_argument("--no-sandbox")
         try:
-            # driver = webdriver.Firefox(capabilities=cap,
-            #                       executable_path=r"geckodriver.exe",
-            #                       options=options)
-            driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+            driver = webdriver.Firefox(executable_path=r"C:\drivers\geckodriver\win64\v0.29.1\geckodriver.exe",
+                                   options=options)
+            time.sleep(10)
             driver.set_window_size(1050, 708)
         except TimeoutException:
             pytest.skip("Time out")
-        driver.implicitly_wait(20)
+    time.sleep(20)
     size = driver.get_window_size()
     print(request.param, size)
     request.cls.driver = driver
-    driver.wait = WebDriverWait(driver, 5)
+    time.sleep(10)
     driver.get("http://tictactoe.no/")
     try:
         menu = driver. \
@@ -57,14 +66,15 @@ def init_driver(request):
         for e in menu:
             if e.text == "SETTINGS":
                 e.click()
-        dark_style = driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-fnzcxi.r-pm2fo."
+        time.sleep(10)
+        dark_style = driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-vl818t.r-pm2fo."
                                                           "r-gxnn5r.r-ou6ah9.r-rs99b7.r-1loqt21.r-ur6pnr."
                                                           "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
                                                           "r-1mhb1uw")
         dark_style.click()
     except NoSuchElementException:
         print("Error, No Such Element!")
-        driver.quit()
+        exit(1)
     
 
 def skip_on(exception, reason="Default reason"):
@@ -85,6 +95,7 @@ class BaseClassTests:
 
 class Tests(BaseClassTests):
     def setup_method(self):
+        time.sleep(10)
         self.driver.refresh()
 
     def teardown_method(self):
@@ -551,7 +562,7 @@ class Tests(BaseClassTests):
         cell[0].click()
         cell = [elem for elem in cells if elem.location['y'] == y[2] and elem.location['x'] == x[2]]
         cell[0].click()
-        time.sleep(10)
+        time.sleep(20)
         tie = WebDriverWait(self.driver, 120).until(
             lambda x: x.find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-16dba41"))
         
@@ -591,7 +602,7 @@ class Tests(BaseClassTests):
         cell[0].click()
         cell = [elem for elem in cells if elem.location['y'] == y[2] and elem.location['x'] == x[2]]
         cell[0].click()
-        time.sleep(10)
+        time.sleep(20)
         win = WebDriverWait(self.driver, 120).until(
             lambda x: x.find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-16dba41"))
         
@@ -629,7 +640,7 @@ class Tests(BaseClassTests):
         cell[0].click()
         cell = [elem for elem in cells if elem.location['y'] == y[2] and elem.location['x'] == x[2]]
         cell[0].click()
-        time.sleep(10)
+        time.sleep(20)
         win = WebDriverWait(self.driver, 120).until(
             lambda x: x.find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-16dba41"))
         titles = [elem.text for elem in win]
