@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+    stages {
+        stage('Automate') {
+            steps {
+                git branch: 'main', 
+                url: 'https://github.com/igum-natasha/test_repository'
+            }
+        }
+        stage('Package') {
+            steps {
+                bat '''
+                git clone https://github.com/igum-natasha/tic-tac-toe-app.git
+                cd tic-tac-toe-app
+                git remote add upstream https://github.com/igum-natasha/tic-tac-toe-app.git
+                git fetch upstream
+                git merge upstream/master master
+                git rebase upstream/master
+                npm install'''
+                bat 'tar.exe -a -c -f files.zip tic-tac-toe-app'
+                archiveArtifacts artifacts: 'files.zip', followSymlinks: false
+            }
+        }
+        stage('Release') {
+            steps {
+                bat '''
+                git tag build_number-%BUILD_NUMBER%
+                git push origin build_number-%BUILD_NUMBER%
+                '''
+            }
+        }
+        stage('Trigger') {
+            steps {
+                script {
+                env.PYTEST_MARK = 'new_feature'
+                env.NUMBER_NEW_FEATURE = 6
+                }
+            }
+        }
+        stage('Execute') {
+            steps {
+                bat '''
+                set chrome_path=C:\\drivers\\chromedriver\\win32\\90.0.4430.24\\chromedriver.exe
+                set gecko_path=C:\\drivers\\geckodriver\\win64\\v0.29.1\\geckodriver.exe
+                set fire_bin=C:\\Program Files\\Mozilla Firefox\\firefox.exe
+                python -m pip install -r requirements.txt
+                pytest -v -s --alluredir=allure-results -n %NUMBER_NEW_FEATURE% tests.py -m %PYTEST_MARK%
+                '''
+            }
+        }
+        stage('Report') {
+            steps {
+                allure includeProperties: false, jdk: '', 
+                           results: [[path: 'allure-results']]
+            }
+        }
+    }
+}

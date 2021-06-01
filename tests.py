@@ -3,17 +3,21 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium.webdriver.firefox.options import Options as op
+from selenium.webdriver.firefox.options import Options as Op
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.color import Color
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.firefox import GeckoDriverManager
+import os
 import time 
 driver: webdriver
 
- 
+
+gecko_path = os.environ.get('gecko_path')
+chrome_path = os.environ.get('chrome_path')
+fire_binary = os.environ.get('fire_bin')
+
+
 @pytest.fixture(params=['firefox', 'chrome'], scope='class')
 def init_driver(request):
     if request.param == 'chrome':
@@ -29,36 +33,24 @@ def init_driver(request):
         cap['pageLoadStrategy'] = "none"
         try:
             time.sleep(20)
-            driver = webdriver.Chrome(executable_path=r"C:\drivers\chromedriver\win32\90.0.4430.24\chromedriver.exe",
-                                      options=options)
+            driver = webdriver.Chrome(executable_path=chrome_path, options=options)
         except TimeoutException:
             pytest.skip("Time out")
     if request.param == 'firefox':
-        options = op()
-        binary = FirefoxBinary(r"C:\Program Files\Mozilla Firefox\firefox.exe")
-        '''options.binary = binary
-        options.add_argument("--disable-gpu")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-setuid-sandbox")
-        cap = DesiredCapabilities().FIREFOX.copy()
-        cap['marionette'] = True'''
+        options = Op()
+        binary = FirefoxBinary(fire_binary)
         options.add_argument("--headless")
         options.binary_location = binary
-        options.add_argument("--disable-dev-shm-usage") # overcome limited resource problems
+        options.add_argument("--disable-dev-shm-usage") 
         options.add_argument("--no-sandbox")
         try:
-            driver = webdriver.Firefox(executable_path=r"C:\drivers\geckodriver\win64\v0.29.1\geckodriver.exe",
-                                   options=options)
+            driver = webdriver.Firefox(executable_path=gecko_path, options=options)
             time.sleep(10)
             driver.set_window_size(1050, 708)
         except TimeoutException:
             pytest.skip("Time out")
     time.sleep(20)
-    size = driver.get_window_size()
-    print(request.param, size)
     request.cls.driver = driver
-    time.sleep(10)
     driver.get("http://tictactoe.no/")
     try:
         menu = driver. \
@@ -86,6 +78,11 @@ def skip_on(exception, reason="Default reason"):
                 pytest.skip(reason)
         return wrapper
     return decorator_func    
+
+
+def find_button(cells, x, y):
+        cell = [elem for elem in cells if elem.location['y'] // 10  == y and elem.location['x'] // 10 == x]
+        cell[0].click()
 
 
 @pytest.mark.usefixtures("init_driver")
@@ -523,6 +520,7 @@ class Tests(BaseClassTests):
         hex_color = Color.from_string(background.value_of_css_property("background-color")).hex
         assert hex_color == "#2a2d34"
     
+    
     @pytest.mark.game
     @skip_on(NoSuchElementException, reason="Error, No Such Element!")
     def test_multiplayer_tie(self):
@@ -533,35 +531,25 @@ class Tests(BaseClassTests):
                 e.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         time.sleep(10)
-        x, y = [], []
-        cell = [elem for elem in cells if elem.location['y'] // 100 == 2 and elem.location['x'] // 100 == 3]
-        cell[0].click()
+        find_button(cells, 38, 25)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
+        x, y = [], []
         for cell in cells:
             cy = cell.location['y']
-            if cy // 100 and cy not in y:
-                y.append(cy)
+            if cy // 100 and cy // 10 not in y:
+                y.append(cy // 10)
             cx = cell.location['x']
-            if cx // 100 and cx not in x:
-                x.append(cx)
-        print(x, y)
+            if cx // 100 and cx // 10 not in x:
+                x.append(cx // 10)
         x.pop(0)
-        cell = [elem for elem in cells if elem.location['y'] == y[1] and elem.location['x'] == x[1]]
-        cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == y[0] and elem.location['x'] == x[2]]
-        cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == y[0] and elem.location['x'] == x[1]]
-        cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == y[1] and elem.location['x'] == x[0]]
-        cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == y[2] and elem.location['x'] == x[0]]
-        cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == y[2] and elem.location['x'] == x[1]]
-        cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == y[1] and elem.location['x'] == x[2]]
-        cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == y[2] and elem.location['x'] == x[2]]
-        cell[0].click()
+        find_button(cells, x[1], y[1])
+        find_button(cells, x[2], y[0])
+        find_button(cells, x[1], y[0])
+        find_button(cells, x[0], y[1])
+        find_button(cells, x[0], y[2])
+        find_button(cells, x[1], y[2])
+        find_button(cells, x[2], y[1])
+        find_button(cells, x[2], y[2])
         time.sleep(20)
         tie = WebDriverWait(self.driver, 120).until(
             lambda x: x.find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-16dba41"))
@@ -579,29 +567,22 @@ class Tests(BaseClassTests):
                 e.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         time.sleep(10)
-        cell = [elem for elem in cells if elem.location['y'] // 100 == 2 and elem.location['x'] // 100 == 4]
-        cell[0].click()
+        find_button(cells, 38, 25)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         x, y = [], []
         for cell in cells:
             cy = cell.location['y']
-            if cy // 100 and cy not in y:
-                y.append(cy)
+            if cy // 100 and cy // 10 not in y:
+                y.append(cy // 10)
             cx = cell.location['x']
-            if cx // 100 and cx not in x:
-                x.append(cx)
-        print(x, y)
+            if cx // 100 and cx // 10 not in x:
+                x.append(cx // 10)
         x.pop(0)
-        cell = [elem for elem in cells if elem.location['y'] == y[0] and elem.location['x'] == x[0]]
-        cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == y[0] and elem.location['x'] == x[2]]
-        cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == y[1] and elem.location['x'] == x[1]]
-        cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == y[1] and elem.location['x'] == x[0]]
-        cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == y[2] and elem.location['x'] == x[2]]
-        cell[0].click()
+        find_button(cells, x[2], y[0])
+        find_button(cells, x[1], y[0])
+        find_button(cells, x[1], y[1])
+        find_button(cells, x[0], y[1])
+        find_button(cells, x[0], y[2])
         time.sleep(20)
         win = WebDriverWait(self.driver, 120).until(
             lambda x: x.find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-16dba41"))
@@ -619,27 +600,21 @@ class Tests(BaseClassTests):
                 e.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         time.sleep(10)
-        cell = [elem for elem in cells if elem.location['y'] // 100 == 2 and elem.location['x'] // 100 == 3]
-        cell[0].click()
+        find_button(cells, 38, 25)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         x, y = [], []
         for cell in cells:
             cy = cell.location['y']
-            if cy // 100 and cy not in y:
-                y.append(cy)
+            if cy // 100 and cy // 10 not in y:
+                y.append(cy // 10)
             cx = cell.location['x']
-            if cx // 100 and cx not in x:
-                x.append(cx)
-        print(x, y)
+            if cx // 100 and cx // 10 not in x:
+                x.append(cx // 10)
         x.pop(0)
-        cell = [elem for elem in cells if elem.location['y'] == y[0] and elem.location['x'] == x[1]]
-        cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == y[1] and elem.location['x'] == x[1]]
-        cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == y[0] and elem.location['x'] == x[2]]
-        cell[0].click()
-        cell = [elem for elem in cells if elem.location['y'] == y[2] and elem.location['x'] == x[2]]
-        cell[0].click()
+        find_button(cells, x[1], y[0])
+        find_button(cells, x[1], y[1])
+        find_button(cells, x[2], y[0])
+        find_button(cells, x[2], y[2])
         time.sleep(20)
         win = WebDriverWait(self.driver, 120).until(
             lambda x: x.find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-16dba41"))
