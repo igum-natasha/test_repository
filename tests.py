@@ -9,18 +9,18 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.color import Color
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import os
-import time 
-driver: webdriver
+import time
 
 
-gecko_path = os.environ.get('gecko_path')
+gecko_path = os.environ.get('gecko_pat')
 chrome_path = os.environ.get('chrome_path')
 fire_binary = os.environ.get('fire_bin')
 
 
 @pytest.fixture(params=['firefox', 'chrome'], scope='class')
 def init_driver(request):
-    if request.param == 'chrome':
+    driver = None
+    if request.param == 'chrome' and chrome_path:
         options = Options()
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
@@ -36,12 +36,12 @@ def init_driver(request):
             driver = webdriver.Chrome(executable_path=chrome_path, options=options)
         except TimeoutException:
             pytest.skip("Time out")
-    if request.param == 'firefox':
+    if request.param == 'firefox' and gecko_path and fire_binary:
         options = Op()
         binary = FirefoxBinary(fire_binary)
         options.add_argument("--headless")
         options.binary_location = binary
-        options.add_argument("--disable-dev-shm-usage") 
+        options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--no-sandbox")
         try:
             driver = webdriver.Firefox(executable_path=gecko_path, options=options)
@@ -49,24 +49,25 @@ def init_driver(request):
             driver.set_window_size(1050, 708)
         except TimeoutException:
             pytest.skip("Time out")
-    time.sleep(20)
-    request.cls.driver = driver
-    driver.get("http://tictactoe.no/")
     try:
+        print('hi')
+        time.sleep(20)
+        request.cls.driver = driver
+        driver.get("http://tictactoe.no/")
         menu = driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
         for e in menu:
             if e.text == "SETTINGS":
                 e.click()
         time.sleep(10)
+        print('hi2')
         dark_style = driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-vl818t.r-pm2fo."
                                                           "r-gxnn5r.r-ou6ah9.r-rs99b7.r-1loqt21.r-ur6pnr."
                                                           "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
                                                           "r-1mhb1uw")
         dark_style.click()
-    except NoSuchElementException:
-        print("Error, No Such Element!")
-        exit(1)
+    except NoSuchElementException and AttributeError:
+        pytest.skip('NoSuchElementException')
     
 
 def skip_on(exception, reason="Default reason"):
@@ -531,7 +532,16 @@ class Tests(BaseClassTests):
                 e.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         time.sleep(10)
-        find_button(cells, 38, 25)
+        x, y = [], []
+        for cell in cells:
+            cy = cell.location['y']
+            if cy // 100 and cy // 10 not in y:
+                y.append(cy // 10)
+            cx = cell.location['x']
+            if cx // 100 and cx // 10 not in x:
+                x.append(cx // 10)
+        print(x, y)
+        find_button(cells, 37, 27)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         x, y = [], []
         for cell in cells:
@@ -567,7 +577,7 @@ class Tests(BaseClassTests):
                 e.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         time.sleep(10)
-        find_button(cells, 38, 25)
+        find_button(cells, 37, 27)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         x, y = [], []
         for cell in cells:
@@ -600,7 +610,7 @@ class Tests(BaseClassTests):
                 e.click()
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         time.sleep(10)
-        find_button(cells, 38, 25)
+        find_button(cells, 37, 27)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         x, y = [], []
         for cell in cells:
