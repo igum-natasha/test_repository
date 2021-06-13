@@ -50,7 +50,6 @@ def init_driver(request):
         except TimeoutException:
             pytest.skip("Time out")
     try:
-        print('hi')
         time.sleep(20)
         request.cls.driver = driver
         driver.get("http://tictactoe.no/")
@@ -60,7 +59,6 @@ def init_driver(request):
             if e.text == "SETTINGS":
                 e.click()
         time.sleep(10)
-        print('hi2')
         dark_style = driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-vl818t.r-pm2fo."
                                                           "r-gxnn5r.r-ou6ah9.r-rs99b7.r-1loqt21.r-ur6pnr."
                                                           "r-1777fci.r-crgep1.r-1udh08x.r-bnwqim.r-1otgn73."
@@ -266,7 +264,6 @@ class Tests(BaseClassTests):
         lobby = self.driver.\
             find_elements_by_css_selector(".css-901oao.r-jwli3a.r-adyw6z.r-vw2c0b")
         lobby = lobby[0].text
-        print(lobby)
         self.driver.execute_script('window.open("https://tictactoe.no/")')
         time.sleep(10)
         new_tab = self.driver.window_handles[-1]
@@ -274,7 +271,6 @@ class Tests(BaseClassTests):
         menu = self.driver. \
             find_elements_by_css_selector('.css-18t94o4.css-1dbjc4n.r-1loqt21.r-1udh08x.r-bnwqim.r-1otgn73')
         for e in menu:
-            print(e.text)
             if e.text == "ONLINE MULTIPLAYER":
                 e.click()
         button_num_3 = self.driver.find_element_by_css_selector(".css-18t94o4.css-1dbjc4n.r-1awozwy.r-14lw9ot."
@@ -540,7 +536,6 @@ class Tests(BaseClassTests):
             cx = cell.location['x']
             if cx // 100 and cx // 10 not in x:
                 x.append(cx // 10)
-        print(x, y)
         find_button(cells, 37, 27)
         cells = self.driver.find_elements_by_css_selector(".css-1dbjc4n.r-1awozwy.r-13awgt0.r-1777fci")
         x, y = [], []
